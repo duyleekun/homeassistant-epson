@@ -9,7 +9,7 @@ index 7b1f69c..a370c2f 100644
  slug: cupsik
  description: A CUPS print server with working AirPrint
  arch:
-@@ -9,6 +9,10 @@ usb: true
+@@ -9,6 +9,11 @@ usb: true
  init: false
  homeassistant_api: true
  host_network: true
