@@ -1,8 +1,6 @@
 #!/usr/bin/with-contenv bashio
 set -Eeuo pipefail
 ulimit -n 524288
-printf '%s\n' "CUPS config mount:" >&2
-ls -ld /config /config/cups /config/cups/printers.conf /share /share/epson-scan/cups-migration/local_cupsik/cups/printers.conf 2>&1 || true
 until [ -S /run/avahi-daemon/socket ]; do sleep 1; done
 bashio::log.info "Starting CUPS"
-exec cupsd -f
+exec cupsd -f -c /config/cups/cupsd.conf -s /config/cups/cups-files.conf
