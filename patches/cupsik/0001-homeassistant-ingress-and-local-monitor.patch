@@ -26,7 +26,7 @@ index 7b1f69c..a370c2f 100644
  homeassistant_api: true
  host_network: true
 +ingress: true
-+ingress_port: 8098
++ingress_port: 8100
 +panel_icon: mdi:printer-wireless
 +panel_title: Epson Printer
  ports:
