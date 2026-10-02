@@ -110,7 +110,7 @@ class EpsonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             status = await self.hass.async_add_executor_job(_read_status)
         except OSError as err:
             raise UpdateFailed(str(err)) from err
-        last_scan = _normalise_last_scan(status)
+        last_scan = await self.hass.async_add_executor_job(_normalise_last_scan, status)
         return {
             "status_available": bool(status),
             "connected": status.get("connected"),
@@ -194,14 +194,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def handle_scan(call: ServiceCall) -> None:
             current = next(iter(hass.data[DOMAIN].values()), None)
-            if current is None or not (current.data or {}).get("status_available"):
+            if current is None or not (current.data or {}).get("connected"):
                 raise HomeAssistantError("Epson scanner app is not connected")
             settings = _entry_settings(entry)
             resolution = call.data.get(CONF_RESOLUTION, settings[CONF_RESOLUTION])
             color_mode = call.data.get(CONF_COLOR_MODE, settings[CONF_COLOR_MODE])
             prefix = call.data.get(CONF_FILENAME_PREFIX, settings[CONF_FILENAME_PREFIX])
             prefix = "".join(char for char in str(prefix) if char.isalnum() or char in "-_")[:32] or DEFAULT_FILENAME_PREFIX
-            await hass.bus.async_fire(
+            hass.bus.async_fire(
                 EVENT_SCAN_REQUEST,
                 {
                     "request_id": str(uuid4()),

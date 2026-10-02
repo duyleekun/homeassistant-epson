@@ -3,6 +3,7 @@
   "name": "Epson L3210 Scanner",
   "codeowners": ["@duyleekun"],
   "config_flow": true,
+  "dependencies": ["media_source"],
   "documentation": "https://github.com/duyleekun/homeassistant-epson",
   "integration_type": "device",
   "iot_class": "local_push",

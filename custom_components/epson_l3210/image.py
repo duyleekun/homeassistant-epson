@@ -22,7 +22,7 @@ class EpsonLatestScanImage(EpsonEntity, ImageEntity):
 
     def __init__(self, coordinator) -> None:
         super().__init__(coordinator)
-        self._last_updated = None
+        ImageEntity.__init__(self, coordinator.hass)
 
     @property
     def image_last_updated(self):
@@ -47,7 +47,14 @@ class EpsonLatestScanImage(EpsonEntity, ImageEntity):
         scan = self.coordinator.data.get("last_scan")
         if not scan:
             return None
-        path = OUTPUT_DIR / str(scan.get("filename", ""))
-        if path.parent != OUTPUT_DIR or not path.is_file():
-            return None
-        return await self.hass.async_add_executor_job(path.read_bytes)
+        return await self.hass.async_add_executor_job(_read_image, scan.get("filename", ""))
+
+
+def _read_image(filename: str) -> bytes | None:
+    path = (OUTPUT_DIR / filename).resolve()
+    if path.parent != OUTPUT_DIR.resolve() or path.suffix.lower() not in (".jpg", ".jpeg"):
+        return None
+    try:
+        return path.read_bytes()
+    except OSError:
+        return None
