@@ -43,7 +43,8 @@ ha supervisor reload
 The script stages `sane_l3210` and `cupsik` as separate Home Assistant apps.
 This installation consumes local apps from `/local_apps`; use that destination
 when deploying here. `/addons` remains supported for installations that use
-the standard add-on source path.
+the standard add-on source path. Set `USE_PUBLISHED_IMAGES=1` when staging a
+host that should pull the public GHCR images instead of building locally.
 
 The script fetches the tested Epson Scan 2 `.deb` packages when they are not
 already staged. They are intentionally ignored and never committed. See
