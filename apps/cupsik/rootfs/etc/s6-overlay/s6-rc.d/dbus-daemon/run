@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bashio
 set -Eeuo pipefail
 ulimit -n 524288
+mkdir -p /run/dbus
 bashio::log.info "Starting system D-Bus"
 exec dbus-daemon --system --nofork
