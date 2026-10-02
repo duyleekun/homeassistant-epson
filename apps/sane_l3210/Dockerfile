@@ -41,4 +41,4 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends /tmp/epson-packages/*.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/epson-packages \
-    && chmod a+x /etc/services.d/saned/run /etc/services.d/scanweb/run /etc/services.d/queue-monitor/run /usr/local/bin/epson_scan_web.py /usr/local/bin/epson_panel_scan.py /usr/local/bin/es2button /usr/local/bin/l3210-button
+    && chmod a+x /etc/services.d/saned/run /etc/services.d/scanweb/run /etc/services.d/queue-monitor/run /etc/services.d/scanner-monitor/run /usr/local/bin/epson_scan_web.py /usr/local/bin/epson_panel_scan.py /usr/local/bin/es2button /usr/local/bin/l3210-button

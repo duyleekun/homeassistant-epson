@@ -17,6 +17,18 @@ controls discovered USB-backed queues.
 
 ## Prepare A Home Assistant Host
 
+For a long-term installation, use the GitHub repository as the app catalog and
+the GHCR images published by `.github/workflows/publish-apps.yml`. Add
+`https://github.com/duyleekun/homeassistant-epson` under **Settings > Apps >
+App repositories**. Supervisor will pull the image named by each app's
+`config.yaml`; it will not run the local staging script on its own.
+
+The scanner image build requires a private GitHub release named
+`epson-scan2-6.7.92` containing the two Epson `.deb` files and the two native
+library files. The release is used only by GitHub Actions and is never copied
+into Git history. Run the workflow manually after uploading that release, or
+push a `v*` tag after the release exists.
+
 The upstream CUPS source is a Git submodule. On the Home Assistant host:
 
 ```bash

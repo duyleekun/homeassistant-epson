@@ -1,0 +1,24 @@
+name: Epson Printer
+version: "1.7.4"
+slug: cupsik
+description: CUPS print server with AirPrint and Epson USB queue support
+image: ghcr.io/duyleekun/homeassistant-epson-cupsik
+arch:
+  - amd64
+  - aarch64
+usb: true
+init: false
+homeassistant_api: true
+host_network: true
+ingress: true
+ingress_port: 631
+panel_icon: mdi:printer
+panel_title: Epson Printer
+ports:
+  631/tcp: 631
+  631/udp: 631
+ports_description:
+  631/tcp: IPP, AirPrint, and CUPS administration
+  631/udp: Bonjour and AirPrint discovery
+map:
+  - addon_config:rw
