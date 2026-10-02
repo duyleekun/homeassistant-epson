@@ -1,14 +1,3 @@
-diff --git a/Dockerfile b/Dockerfile
-index 2ea3910..c90ca13 100644
---- a/Dockerfile
-+++ b/Dockerfile
-@@ -9,6 +9,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
- RUN apt update \
-     && apt install -y --no-install-recommends \
-         sudo \
-         locales \
-         cups \
-         cups-filters \
 diff --git a/config.yaml b/config.yaml
 index 7b1f69c..a370c2f 100644
 --- a/config.yaml
