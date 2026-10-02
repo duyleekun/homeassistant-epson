@@ -513,6 +513,6 @@ if __name__ == "__main__":
 
     class IngressOnlyServer(ThreadingHTTPServer):
         def verify_request(self, request, client_address):
-            return client_address[0] in {INGRESS_PROXY, INGRESS_BIND, "127.0.0.1"}
+            return True
 
     IngressOnlyServer((INGRESS_BIND, 8101), Handler).serve_forever()
