@@ -21,10 +21,11 @@ grep -q '^homeassistant_api: true$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '^version: "0.8.1"$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '6566/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 ! grep -Eq '^(ingress|ingress_port|panel_icon|panel_title):' "$ROOT_DIR/apps/sane_l3210/config.yaml"
-grep -q '^version: "2.1.2"$' "$ROOT_DIR/apps/cupsik/config.yaml"
+grep -q '^version: "2.1.3"$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress: true$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress_port: 631$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q 'libexif12' "$ROOT_DIR/apps/cupsik/Dockerfile"
+grep -q 'libpoppler-cpp0v5' "$ROOT_DIR/apps/cupsik/Dockerfile"
 test ! -e "$ROOT_DIR/apps/cupsik/rootfs/etc/avahi/services/epson-l3210.service"
 
 for source in \

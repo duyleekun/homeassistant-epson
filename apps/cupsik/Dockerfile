@@ -120,7 +120,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     avahi-daemon dbus ghostscript libavahi-client3 libavahi-common3 \
         libcap2 libdaemon0 libdbus-1-3 libexif12 libfontconfig1 libfreetype6 \
-    libglib2.0-0 libgnutls30 libjpeg62-turbo liblcms2-2 libnss-mdns \
+        libglib2.0-0 libgnutls30 libjpeg62-turbo liblcms2-2 libnss-mdns \
+        libpoppler-cpp0v5 \
     libpam0g libpaper1 libpng16-16 libqpdf29 libsystemd0 libtiff6 \
     libusb-1.0-0 libxml2 libzstd1 printer-driver-escpr procps \
     && apt-get clean \
