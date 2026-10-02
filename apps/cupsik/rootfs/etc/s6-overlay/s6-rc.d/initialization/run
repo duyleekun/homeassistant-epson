@@ -30,3 +30,5 @@ fi
 ln -s /config/cups /etc/cups
 
 chown -R lp:lp /var/cache/cups /var/log/cups /var/spool/cups /run/cups || true
+
+exec sleep infinity

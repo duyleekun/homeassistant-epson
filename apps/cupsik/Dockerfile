@@ -136,7 +136,7 @@ COPY --from=cups-filters-builder /opt/stage/ /
 COPY rootfs /
 
 RUN chmod a+x \
-      /etc/s6-overlay/s6-rc.d/initialization/up \
+      /etc/s6-overlay/s6-rc.d/initialization/run \
       /etc/s6-overlay/s6-rc.d/dbus-daemon/run \
       /etc/s6-overlay/s6-rc.d/avahi-daemon/run \
       /etc/s6-overlay/s6-rc.d/cups-server/run
