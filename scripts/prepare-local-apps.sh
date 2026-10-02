@@ -31,7 +31,7 @@ if [ "${USE_PUBLISHED_IMAGES:-0}" != 1 ]; then
 fi
 find "$STAGE_DIR" -type d -name __pycache__ -exec rm -rf {} +
 # Finder metadata and empty legacy service directories must not reach s6.
-find "$STAGE_DIR" -type f -name '._*' -delete
+find "$STAGE_DIR" -depth \( -name '._*' -o -name '.DS_Store' \) -exec rm -rf {} +
 find "$STAGE_DIR" -type d -name scanweb -empty -delete
 
 mkdir -p "$DEST_DIR"
