@@ -5,7 +5,7 @@ index 7b1f69c..a370c2f 100644
 @@ -1,5 +1,5 @@
  name: CUPS
 -version: "1.7"
-+version: "1.7.2"
++version: "1.7.3"
  slug: cupsik
  description: A CUPS print server with working AirPrint
  arch:
@@ -15,6 +15,7 @@ index 7b1f69c..a370c2f 100644
  host_network: true
 +ingress: true
 +ingress_port: 631
++ingress_panel: true
 +panel_icon: mdi:printer-wireless
 +panel_title: Epson Printer
  ports:
