@@ -1,5 +1,5 @@
 name: Epson Printer
-version: "1.7.4"
+version: "1.7.5"
 slug: cupsik
 description: CUPS print server with AirPrint and Epson USB queue support
 image: ghcr.io/duyleekun/homeassistant-epson-cupsik
