@@ -23,3 +23,7 @@ initialization service copies it into the new app config volume only when no
 queue exists. CUPS publishes the Epson IPP service through its official
 Avahi/DNS-SD integration, so Bonjour discovery does not depend on a
 third-party app or a duplicate static service file.
+
+Set the app option `admin_password` before opening CUPS administration. The
+app creates the `epson` account in the `lpadmin` system group and does not
+store that password in this repository.

@@ -1,5 +1,5 @@
 name: SANE L3210 Scanner
-version: "0.8.2"
+version: "0.8.3"
 slug: sane_l3210
 description: Network scanner sharing for the Epson L3210 over SANE
 image: ghcr.io/duyleekun/homeassistant-epson-sane_l3210

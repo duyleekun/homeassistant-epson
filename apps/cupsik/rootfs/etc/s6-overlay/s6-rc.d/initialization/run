@@ -3,6 +3,17 @@ set -Eeuo pipefail
 
 mkdir -p /config/cups /run/dbus /run/cups /var/cache/cups /var/log/cups /var/spool/cups
 
+id epson >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin --groups lpadmin epson
+password="$(bashio::config 'admin_password')"
+if [ -n "$password" ]; then
+  printf 'epson:%s\n' "$password" | chpasswd
+  bashio::log.info "CUPS administration uses the epson account and configured app password"
+else
+  passwd --lock epson >/dev/null
+  bashio::log.warning "Set admin_password in app Configuration to enable authenticated CUPS administration"
+fi
+unset password
+
 MIGRATION_CUPS=/share/epson-scan/cups-migration/local_cupsik/cups
 if [ -f "$MIGRATION_CUPS/printers.conf" ] && [ ! -e /config/cups/printers.conf ]; then
   bashio::log.info "Migrating the preserved Epson CUPS configuration"
