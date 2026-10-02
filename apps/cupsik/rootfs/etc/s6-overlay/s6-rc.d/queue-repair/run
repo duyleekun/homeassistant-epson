@@ -6,6 +6,13 @@ CUPS_HOST=127.0.0.1:631
 PPD=/config/cups/ppd/${QUEUE}.ppd
 URI=""
 
+for _ in $(seq 1 30); do
+  if lpstat -h "$CUPS_HOST" -v >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+
 if lpstat -h "$CUPS_HOST" -p "$QUEUE" >/dev/null 2>&1; then
   bashio::log.info "Preserved Epson CUPS queue is active"
   exit 0
@@ -21,8 +28,11 @@ if [ -z "$URI" ] || [ ! -r "$PPD" ]; then
 fi
 
 bashio::log.info "Restoring the preserved Epson queue through CUPS"
-lpadmin -h "$CUPS_HOST" -p "$QUEUE" -E -v "$URI" -P "$PPD" \
+if ! lpadmin -h "$CUPS_HOST" -p "$QUEUE" -E -v "$URI" -P "$PPD" \
   -o usb-no-reattach-default=true \
-  -o outputorder=reverse -o page-delivery=reverse-order
-cupsenable -h "$CUPS_HOST" "$QUEUE"
-cupsaccept -h "$CUPS_HOST" "$QUEUE"
+  -o outputorder=reverse -o page-delivery=reverse-order; then
+  bashio::log.warning "CUPS rejected the preserved Epson queue"
+  exit 0
+fi
+cupsenable -h "$CUPS_HOST" "$QUEUE" || true
+cupsaccept -h "$CUPS_HOST" "$QUEUE" || true
