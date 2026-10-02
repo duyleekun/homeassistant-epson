@@ -4,6 +4,11 @@ set -Eeuo pipefail
 mkdir -p /config/cups /run/dbus /run/cups /var/cache/cups /var/log/cups /var/spool/cups
 
 MIGRATION_CUPS=/share/epson-scan/cups-migration/local_cupsik/cups
+{
+  printf 'config_printers='; [ -f /config/cups/printers.conf ] && echo yes || echo no
+  printf 'migration_printers='; [ -f "$MIGRATION_CUPS/printers.conf" ] && echo yes || echo no
+  ls -ld /config /config/cups "$MIGRATION_CUPS" 2>&1 || true
+} > /share/epson-scan/cups-migration/.last-init 2>&1 || true
 if [ -f "$MIGRATION_CUPS/printers.conf" ] && ! grep -q '^<.*Printer ' /config/cups/printers.conf 2>/dev/null; then
   bashio::log.info "Migrating the preserved Epson CUPS configuration"
   cp -a "$MIGRATION_CUPS"/. /config/cups/
