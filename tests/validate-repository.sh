@@ -39,9 +39,14 @@ grep -q 'AVAHI_COMMIT=f060abee2807c943821d88839c013ce15db17b58' "$ROOT_DIR/apps/
 grep -q 'CUPS_FILTERS_COMMIT=5a73330fbd0cde494d984141f9add1565aef8171' "$ROOT_DIR/apps/cupsik/upstream-versions.env"
 grep -q 'LIBPPD_COMMIT=2b37a73c02126d1ba031270322b6c79034cc0d0f' "$ROOT_DIR/apps/cupsik/upstream-versions.env"
 
-if rg -n -i 'romlisrl|zajac-grzegorz|cups-airprint|third_party/cups|patches/cupsik|scanweb' \
+if rg -n -i 'romlisrl|zajac-grzegorz|cups-airprint|third_party/cups|patches/cupsik' \
     "$ROOT_DIR" --hidden -g '!.git/**' -g '!tests/validate-repository.sh' -g '!*.pyc' -g '!__pycache__/**'; then
   printf 'old third-party or removed scanner references remain\n' >&2
+  exit 1
+fi
+
+if find "$ROOT_DIR/apps" -path '*/scanweb' -o -path '*/scanweb/*' | grep -q .; then
+  printf 'removed scanner web service remains in an app tree\n' >&2
   exit 1
 fi
 

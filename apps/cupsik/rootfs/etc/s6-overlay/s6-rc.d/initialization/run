@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 set -Eeuo pipefail
 
-mkdir -p /config/cups /run/cups /var/cache/cups /var/log/cups /var/spool/cups
+mkdir -p /config/cups /run/dbus /run/cups /var/cache/cups /var/log/cups /var/spool/cups
 
 if [ ! -f /config/cups/cupsd.conf ]; then
   cp -a /etc/cups/. /config/cups/

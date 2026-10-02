@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import time
 from urllib.request import Request, urlopen
 
@@ -32,9 +33,18 @@ def update_status(**changes) -> dict:
         current = {}
     current.update(changes)
     current["updated_at"] = datetime.now(timezone.utc).isoformat()
-    temp_path = STATUS_PATH.with_suffix(".tmp")
-    temp_path.write_text(json.dumps(current, sort_keys=True), encoding="utf-8")
-    temp_path.replace(STATUS_PATH)
+    temp_fd, temp_name = tempfile.mkstemp(
+        dir=str(BASE), prefix=".status-", suffix=".tmp"
+    )
+    temp_path = Path(temp_name)
+    try:
+        with os.fdopen(temp_fd, "w", encoding="utf-8") as stream:
+            json.dump(current, stream, sort_keys=True)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temp_path.replace(STATUS_PATH)
+    finally:
+        temp_path.unlink(missing_ok=True)
     return current
 
 

@@ -92,6 +92,9 @@ def websocket_loop() -> None:
             message = json.loads(connection.recv())
             if message.get("type") != "auth_ok":
                 raise RuntimeError(f"HA WebSocket authentication failed: {message}")
+            # Keep the authenticated event stream open while idle. The timeout
+            # above only protects the initial connection handshake.
+            connection.settimeout(None)
             connection.send(
                 json.dumps(
                     {
