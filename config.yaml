@@ -1,5 +1,5 @@
 name: SANE L3210 Scanner
-version: "0.6.5"
+version: "0.6.6"
 slug: sane_l3210
 description: Network scanner sharing for the Epson L3210 over SANE
 arch:
