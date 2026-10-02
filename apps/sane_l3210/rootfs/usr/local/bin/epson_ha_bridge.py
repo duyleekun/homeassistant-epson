@@ -84,7 +84,7 @@ def websocket_loop() -> None:
     while RUNNING:
         connection = None
         try:
-            connection = websocket.create_connection("ws://supervisor/core/websocket", timeout=10)
+            connection = websocket.create_connection("ws://supervisor/core/websocket", timeout=None)
             message = json.loads(connection.recv())
             if message.get("type") != "auth_required":
                 raise RuntimeError(f"Unexpected HA WebSocket greeting: {message}")
