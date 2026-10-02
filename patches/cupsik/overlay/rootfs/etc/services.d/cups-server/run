@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+set -euo pipefail
+
+bashio::log.info "Starting supervised Epson CUPS service"
+if [ ! -d /config/cups ]; then
+    cp -a /etc/cups /config/cups
+fi
+if [ ! -L /etc/cups ]; then
+    mv /etc/cups /etc/cups.image-defaults
+    ln -s /config/cups /etc/cups
+fi
+mkdir -p /run/cups
+cupsd -t
+exec cupsd -f
