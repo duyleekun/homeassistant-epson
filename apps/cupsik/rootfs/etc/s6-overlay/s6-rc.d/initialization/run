@@ -3,9 +3,12 @@ set -Eeuo pipefail
 
 mkdir -p /config/cups /run/dbus /run/cups /var/cache/cups /var/log/cups /var/spool/cups
 
-if [ ! -f /config/cups/printers.conf ] && [ -f /share/epson-scan/cups-migration/local_cupsik/cups/printers.conf ]; then
+MIGRATION_CUPS=/share/epson-scan/cups-migration/local_cupsik/cups
+if [ -f "$MIGRATION_CUPS/printers.conf" ] && ! grep -q '^<.*Printer ' /config/cups/printers.conf 2>/dev/null; then
   bashio::log.info "Migrating the preserved Epson CUPS configuration"
-  cp -a /share/epson-scan/cups-migration/local_cupsik/cups/. /config/cups/
+  cp -a "$MIGRATION_CUPS"/. /config/cups/
+elif [ ! -f "$MIGRATION_CUPS/printers.conf" ]; then
+  bashio::log.warning "The preserved Epson CUPS configuration is not mounted"
 fi
 
 if [ -f /config/cups/printers.conf ]; then
