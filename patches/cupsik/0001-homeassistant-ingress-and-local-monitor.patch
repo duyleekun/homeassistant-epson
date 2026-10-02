@@ -5,7 +5,7 @@ index 7b1f69c..a370c2f 100644
 @@ -1,5 +1,5 @@
  name: CUPS
 -version: "1.7"
-+version: "1.7.1"
++version: "1.7.2"
  slug: cupsik
  description: A CUPS print server with working AirPrint
  arch:
