@@ -17,8 +17,9 @@ AirPrint, and Bonjour.
 
 The add-on configuration is stored in `/config/cups` inside the persistent
  app config volume. Existing `printers.conf`, queue options, and PPDs are
- copied forward only when missing. Before migration, place the preserved
- configuration under `/share/epson-scan/cups-migration/local_cupsik`; the
- initialization service copies it into the new app config volume only when no
- queue exists. Avahi also publishes the Epson IPP service directly so Bonjour
- discovery does not depend on a third-party app.
+copied forward only when missing. Before migration, place the preserved
+configuration under `/share/epson-scan/cups-migration/local_cupsik`; the
+initialization service copies it into the new app config volume only when no
+queue exists. CUPS publishes the Epson IPP service through its official
+Avahi/DNS-SD integration, so Bonjour discovery does not depend on a
+third-party app or a duplicate static service file.

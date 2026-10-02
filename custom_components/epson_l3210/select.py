@@ -30,6 +30,8 @@ class EpsonColorModeSelect(EpsonEntity, SelectEntity):
         return _entry_settings(self._entry)[CONF_COLOR_MODE]
 
     async def async_select_option(self, option: str) -> None:
+        if option not in COLOR_MODES:
+            raise ValueError(f"Unsupported Epson color mode: {option}")
         options = {**_entry_settings(self._entry), CONF_COLOR_MODE: option}
         self.hass.config_entries.async_update_entry(self._entry, options=options)
         self.async_write_ha_state()

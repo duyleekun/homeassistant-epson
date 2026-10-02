@@ -21,9 +21,11 @@ grep -q '^homeassistant_api: true$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '^version: "0.8.1"$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '6566/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 ! grep -Eq '^(ingress|ingress_port|panel_icon|panel_title):' "$ROOT_DIR/apps/sane_l3210/config.yaml"
-grep -q '^version: "2.1.1"$' "$ROOT_DIR/apps/cupsik/config.yaml"
+grep -q '^version: "2.1.2"$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress: true$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress_port: 631$' "$ROOT_DIR/apps/cupsik/config.yaml"
+grep -q 'libexif12' "$ROOT_DIR/apps/cupsik/Dockerfile"
+test ! -e "$ROOT_DIR/apps/cupsik/rootfs/etc/avahi/services/epson-l3210.service"
 
 for source in \
   'https://github.com/OpenPrinting/cups.git' \
@@ -61,6 +63,7 @@ python3 -m json.tool "$ROOT_DIR/custom_components/epson_l3210/manifest.json" >/d
 python3 -m json.tool "$ROOT_DIR/custom_components/epson_l3210/strings.json" >/dev/null
 python3 -m json.tool "$ROOT_DIR/custom_components/epson_l3210/translations/en.json" >/dev/null
 python3 -m compileall -q "$ROOT_DIR/custom_components" "$ROOT_DIR/apps/sane_l3210/rootfs/usr/local/bin"
+python3 -m unittest -q "$ROOT_DIR/tests/test_native_integration_contract.py"
 
 while IFS= read -r shell_file; do
   bash -n "$shell_file"

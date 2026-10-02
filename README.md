@@ -80,4 +80,5 @@ tests/validate-repository.sh
 ```
 
 Validate a real nonblank scan, CUPS test page, large Mac AirPrint job, USB
-removal/resume, held-job release, and both ingress panels after deployment.
+removal/resume, held-job release, and the authenticated CUPS ingress panel
+after deployment.

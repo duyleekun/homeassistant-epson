@@ -34,6 +34,9 @@ class EpsonResolutionNumber(EpsonEntity, NumberEntity):
         return _entry_settings(self._entry)[CONF_RESOLUTION]
 
     async def async_set_native_value(self, value: float) -> None:
+        resolution = int(value)
+        if resolution not in (100, 200, 300):
+            raise ValueError("Resolution must be 100, 200, or 300 dpi")
         options = {**_entry_settings(self._entry), CONF_RESOLUTION: int(value)}
         self.hass.config_entries.async_update_entry(self._entry, options=options)
         self.async_write_ha_state()
