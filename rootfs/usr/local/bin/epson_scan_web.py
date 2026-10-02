@@ -174,7 +174,7 @@ def page(message=""):
         stat = p.stat()
         rows.append(
             "<tr>"
-            f"<td><a href='/files/{quote(p.name)}'>{html.escape(p.name)}</a></td>"
+            f"<td><a href='files/{quote(p.name)}'>{html.escape(p.name)}</a></td>"
             f"<td>{stat.st_size:,} bytes</td>"
             f"<td>{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(stat.st_mtime))}</td>"
             "</tr>"
@@ -204,7 +204,7 @@ def page(message=""):
   <h1>Epson L3210 Scanner</h1>
   {message_html}
   {panel_html}
-  <form method="post" action="/scan">
+  <form method="post" action="scan">
     <label>Resolution
       <select name="resolution">
         <option value="200">200 dpi</option>

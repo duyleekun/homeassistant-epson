@@ -9,6 +9,13 @@ init: false
 startup: services
 boot: auto
 host_network: true
+ingress: true
+ingress_port: 8099
+ingress_entry: /
+panel_icon: mdi:scanner
+panel_title: Epson Scanner
+webui: http://[HOST]:[PORT:8099]
+stage: experimental
 ports:
   6566/tcp: 6566
   8099/tcp: 8099
