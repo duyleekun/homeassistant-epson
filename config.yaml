@@ -1,5 +1,5 @@
 name: SANE L3210 Scanner
-version: "0.6.3"
+version: "0.6.4"
 slug: sane_l3210
 description: Network scanner sharing for the Epson L3210 over SANE
 arch:
@@ -15,7 +15,7 @@ ingress_entry: /
 panel_icon: mdi:scanner
 panel_title: Epson Scanner
 webui: http://[HOST]:[PORT:8099]
-stage: experimental
+stage: stable
 ports:
   6566/tcp: 6566
   8099/tcp: 8099

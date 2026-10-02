@@ -20,10 +20,10 @@ The Epson physical panel-button scan event is not exposed reliably by the Linux 
 ## Home Assistant UI
 
 When installed from the repository through the Home Assistant app store, enable
-the app and open **Epson Scanner** from the sidebar. The panel uses Supervisor
-ingress, so it does not require exposing the scanner web port to the LAN or
-entering a separate app login. Direct access on port `8099` remains available
-for troubleshooting.
+the app, open its details page, and turn on **Show in sidebar**. The resulting
+**Epson Scanner** panel uses Supervisor ingress, so it does not require
+exposing the scanner web port to the LAN or entering a separate app login.
+Direct access on port `8099` remains available for troubleshooting.
 
 This is intentionally an app-level scanner UI rather than a Home Assistant
 core `scanner` entity: Home Assistant does not provide a general document-scan
@@ -45,14 +45,19 @@ Do not publish or redistribute Epson binaries without checking their license ter
 
 ## Home Assistant deployment
 
-Home Assistant's local app repository is used for hardware testing. Copy this repository into the local app source path and rebuild it through Supervisor:
+Home Assistant's documented remote-development path is `/addons`. Copy this
+repository into the local app source path and rebuild it through Supervisor:
 
 ```bash
-scp -r . root@homeassistant.local:/local_apps/sane_l3210
+scp -r . root@homeassistant.local:/addons/sane_l3210
 ssh root@homeassistant.local 'ha supervisor reload'
 ssh root@homeassistant.local 'ha apps rebuild local_sane_l3210 --force'
 ssh root@homeassistant.local 'ha apps start local_sane_l3210'
 ```
+
+The older `/local_apps/sane_l3210` path may exist on older installations, but
+`/addons/sane_l3210` is the source path Supervisor catalogs for local app
+development.
 
 The app maps `/share`; scan output and queue-monitor state are retained there across rebuilds. The CUPS app configuration is separate and must not be deleted during scanner deployment.
 
