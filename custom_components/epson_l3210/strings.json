@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Epson L3210 Scanner",
+        "description": "Add the Epson L3210 scanner connected to Home Assistant.",
+        "data": {
+          "name": "Device name"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "The Epson L3210 scanner is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Default scan settings",
+        "data": {
+          "resolution": "Resolution",
+          "color_mode": "Color mode",
+          "filename_prefix": "Filename prefix"
+        }
+      }
+    }
+  }
+}

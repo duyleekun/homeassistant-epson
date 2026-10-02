@@ -24,17 +24,19 @@ bashio::log.info "Epson Scan 2 native driver check"
 if command -v epsonscan2 >/dev/null 2>&1; then
   export QT_QPA_PLATFORM=offscreen
   timeout 20s epsonscan2 --help 2>&1 | sed -n '1,80p' || true
-  bashio::log.info "Epson Scan 2 device list"
-  timeout 45s epsonscan2 --list 2>&1 | sed -n '1,120p' || true
-  bashio::log.info "Creating default Epson Scan 2 settings in /share/epson-scan"
+  if [ -e /share/epson-scan/panel-listener.disabled ]; then
+    bashio::log.info "Epson Scan 2 device list"
+    timeout 45s epsonscan2 --list 2>&1 | sed -n '1,120p' || true
+    bashio::log.info "Epson Scan 2 device status"
+    timeout 45s epsonscan2 --get-status 2>&1 | sed -n '1,160p' || true
+  else
+    bashio::log.info "Skipping native device probes while the panel listener owns USB"
+  fi
   mkdir -p /share/epson-scan
-  (
+  if [ ! -f /share/epson-scan/DefaultSettings.SF2 ]; then (
     cd /share/epson-scan
     timeout 45s epsonscan2 --create 2>&1 | sed -n '1,120p' || true
-    find . -maxdepth 1 -type f -print -exec sed -n '1,80p' {} \; 2>/dev/null | sed -n '1,180p'
-  ) || true
-  bashio::log.info "Epson Scan 2 device status"
-  timeout 45s epsonscan2 --get-status 2>&1 | sed -n '1,160p' || true
+  ) || true; fi
 
   if [ -f /share/epson-scan/RUN_TEST_SCAN ]; then
     bashio::log.info "Running one-shot Epson Scan 2 test scan"

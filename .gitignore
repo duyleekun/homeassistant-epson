@@ -5,6 +5,7 @@ apps/sane_l3210/rootfs/opt/es2button/lib/*.so
 # Generated/runtime files.
 apps/sane_l3210/rootfs/usr/local/bin/__pycache__/
 *.pyc
+**/__pycache__/
 share/
 output/
 *.SF2

@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bashio
+set -euo pipefail
+
+bashio::log.info "Starting Epson Home Assistant scan bridge"
+exec /usr/local/bin/epson_ha_bridge.py

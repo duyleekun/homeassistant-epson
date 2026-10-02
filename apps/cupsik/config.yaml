@@ -1,5 +1,5 @@
 name: Epson Printer
-version: "1.7.5"
+version: "2.0.0"
 slug: cupsik
 description: CUPS print server with AirPrint and Epson USB queue support
 image: ghcr.io/duyleekun/homeassistant-epson-cupsik
@@ -12,7 +12,7 @@ homeassistant_api: true
 host_network: true
 ingress: true
 ingress_port: 631
-panel_icon: mdi:printer
+panel_icon: mdi:printer-wireless
 panel_title: Epson Printer
 ports:
   631/tcp: 631

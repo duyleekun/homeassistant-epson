@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
-import time
+import os
+import sys
 
-from epson_scan_web import native_scan
+from epson_scan_engine import fail_scan, post_activity, scan_panel
 
 
 if __name__ == "__main__":
-    prefix = time.strftime("panel-%Y%m%d-%H%M%S")
-    print(native_scan(200, prefix, manage_listener=False), flush=True)
+    button = os.environ.get("ES2_BUTTON_NUM")
+    post_activity("button_pressed", source="panel_button", button=button)
+    try:
+        metadata = scan_panel()
+    except Exception as exc:
+        fail_scan("panel_button", str(exc))
+        print(f"Panel scan failed: {exc}", flush=True)
+        sys.exit(1)
+    print(f"Scan finished: {metadata['filename']}", flush=True)
+    sys.exit(0)

@@ -1,4 +1,4 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.6.2
 FROM $BUILD_FROM
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -7,6 +7,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         avahi-daemon \
         dbus \
+        gcc \
         libboost-filesystem1.74.0 \
         libboost-program-options1.74.0 \
         libboost-system1.74.0 \
@@ -23,9 +24,12 @@ RUN apt-get update \
         libqt5widgets5 \
         libtiff6 \
         libusb-1.0-0 \
+        libusb-1.0-0-dev \
         psmisc \
         python3 \
+        python3-websocket \
         cups-client \
+        libc6-dev \
         usbutils \
         sane-utils \
         libsane \
@@ -36,9 +40,13 @@ RUN apt-get update \
 
 COPY packages /tmp/epson-packages
 COPY rootfs /
+COPY native-src /tmp/native-src
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends /tmp/epson-packages/*.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/epson-packages \
-    && chmod a+x /etc/services.d/saned/run /etc/services.d/scanweb/run /etc/services.d/queue-monitor/run /etc/services.d/scanner-monitor/run /usr/local/bin/epson_scan_web.py /usr/local/bin/epson_panel_scan.py
+    && rm -rf /etc/services.d/es2button \
+    && cc -O2 -Wall -Wextra -o /usr/local/bin/l3210-button /tmp/native-src/l3210_button.c -lusb-1.0 \
+    && rm -rf /tmp/native-src \
+    && chmod a+x /etc/services.d/saned/run /etc/services.d/scan-bridge/run /etc/services.d/queue-monitor/run /etc/services.d/scanner-monitor/run /usr/local/bin/epson_scan_engine.py /usr/local/bin/epson_ha_bridge.py /usr/local/bin/epson_panel_scan.py /usr/local/bin/epson_status.py /usr/local/bin/l3210-button

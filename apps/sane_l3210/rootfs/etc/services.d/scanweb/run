@@ -1,5 +1,0 @@
-#!/usr/bin/with-contenv bashio
-set -euo pipefail
-
-bashio::log.info "Starting Epson native web scanner on port 8101"
-exec /usr/local/bin/epson_scan_web.py

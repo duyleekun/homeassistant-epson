@@ -1,0 +1,27 @@
+scan:
+  name: Scan
+  description: Start a scan using the Epson L3210.
+  fields:
+    resolution:
+      name: Resolution
+      description: Scan resolution in dpi. The device default is used when omitted.
+      selector:
+        number:
+          min: 100
+          max: 300
+          step: 100
+          mode: box
+          unit_of_measurement: dpi
+    color_mode:
+      name: Color mode
+      description: Color or grayscale. The device default is used when omitted.
+      selector:
+        select:
+          options:
+            - color
+            - grayscale
+    filename_prefix:
+      name: Filename prefix
+      description: Prefix for the generated scan filename.
+      selector:
+        text:

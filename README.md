@@ -1,15 +1,16 @@
-# Home Assistant Epson Apps
+# Home Assistant Epson
 
-Private Home Assistant app repository for the Epson L3210 scanner and the
-separate CUPS/AirPrint service used by the printer.
+Home Assistant apps and a HACS-compatible integration for an Epson L3210
+scanner and printer.
 
 ## Apps
 
-- `apps/sane_l3210`: native Epson Scan 2 web scanning through Home Assistant
-  ingress, SANE network sharing, and dynamic USB-backed CUPS queue monitoring.
-- `cupsik`: prepared from the pinned upstream CUPS/AirPrint submodule with a
-  parent-owned patch for a Home Assistant ingress admin panel and localhost
-  queue control.
+- `apps/sane_l3210`: native Epson Scan 2 and SANE network sharing, with a
+  Home Assistant event bridge and dynamic USB-backed CUPS queue monitoring.
+- `apps/cupsik`: a directly owned CUPS/AirPrint app built from pinned official
+  OpenPrinting CUPS, Avahi, cups-filters, and libppd sources.
+- `custom_components/epson_l3210`: the native Home Assistant UI, services,
+  entities, events, image, and scan-history integration.
 
 The scanner and CUPS remain separate containers. CUPS continues to own IPP,
 AirPrint, Bonjour, and the printer queue; the scanner app only monitors and
@@ -22,9 +23,7 @@ the GHCR images published by `.github/workflows/publish-apps.yml`. Add
 `https://github.com/duyleekun/homeassistant-epson` under **Settings > Apps >
 App repositories**. Supervisor will pull the image named by each app's
 `config.yaml`; it will not run the local staging script on its own.
-Because this source repository is private, the GHCR packages must either be
-made public or supplied through a registry-authenticated deployment before
-Supervisor can pull them. The local staging path remains the recovery option.
+The local staging path remains the recovery option.
 
 The scanner image build downloads the Epson Scan 2 6.7.92.0 bundle from a
 public download URL, verifies its SHA-256, and extracts the two `.deb` files.
@@ -32,10 +31,9 @@ The proprietary packages remain outside Git history. Override
 `EPSON_BUNDLE_URL` only when using a trusted mirror with the same verified
 bundle.
 
-The upstream CUPS source is a Git submodule. On the Home Assistant host:
+On a Home Assistant host using local app sources:
 
 ```bash
-git submodule update --init --recursive
 ./scripts/prepare-local-apps.sh /addons
 ha supervisor reload
 ```
@@ -50,10 +48,21 @@ The script fetches the tested Epson Scan 2 `.deb` packages when they are not
 already staged. They are intentionally ignored and never committed. See
 `scripts/fetch-epson-scan2.sh` and `apps/sane_l3210/packages/SHA256SUMS`.
 
+Install the HACS integration into Home Assistant's `/config` volume with:
+
+```bash
+./scripts/install-integration.sh /config
+```
+
+Then restart Home Assistant and add **Epson L3210 Scanner** from Settings.
+The scan button, settings, latest image, activity event, and previous scans
+are exposed by Home Assistant. The scanner app listens on SANE port `6566`;
+it no longer needs an unauthenticated web scanner endpoint.
+
 ## Migration Safety
 
-Before replacing the existing CUPS app, back up `/share/epson-scan` and
-`/app_configs/2c6aefcc_cupsik`. Preserve the existing `printers.conf`,
+Before replacing the existing CUPS app, back up `/share/epson-scan`,
+`/app_configs/2c6aefcc_cupsik`, and `/app_configs/local_cupsik`. Preserve the existing `printers.conf`,
 `cupsd.conf`, queue options, and Avahi behavior until both small CUPS and large
 Mac AirPrint jobs have been verified.
 
@@ -65,8 +74,7 @@ Home Assistant ingress authentication does not replace CUPS authorization.
 
 ```bash
 apps/sane_l3210/tests/validate-queue-monitor.sh
-git submodule update --init --recursive
-git diff --submodule=diff --exit-code
+tests/validate-repository.sh
 ```
 
 Validate a real nonblank scan, CUPS test page, large Mac AirPrint job, USB

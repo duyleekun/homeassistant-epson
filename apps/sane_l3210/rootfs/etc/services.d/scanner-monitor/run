@@ -4,7 +4,7 @@ set -u
 last_state=unknown
 
 scanner_present() {
-  scanimage -L 2>/dev/null | grep -q "epsonscan2:"
+  lsusb -d 04b8:1188 >/dev/null 2>&1
 }
 
 refresh_native_backend() {
@@ -12,6 +12,10 @@ refresh_native_backend() {
   output="$(timeout 45s epsonscan2 --get-status 2>&1 || true)"
   bashio::log.info "Epson Scan 2 USB state changed; refreshed native backend"
   printf '%s\n' "$output" | sed -n '1,40p'
+}
+
+panel_listener_enabled() {
+  [ ! -e /share/epson-scan/panel-listener.disabled ]
 }
 
 while true; do
@@ -23,8 +27,14 @@ while true; do
 
   if [ "$state" != "$last_state" ]; then
     if [ "$state" = present ]; then
-      refresh_native_backend
+      python3 /usr/local/bin/epson_status.py --connected true --state idle || true
+      if panel_listener_enabled; then
+        bashio::log.info "Panel listener owns Epson USB interface; skipping concurrent Epson Scan 2 refresh"
+      else
+        refresh_native_backend
+      fi
     else
+      python3 /usr/local/bin/epson_status.py --connected false --state offline || true
       bashio::log.info "Epson scanner USB device is absent"
     fi
     last_state="$state"

@@ -29,24 +29,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Download and verify Epson assets
         if: matrix.app == 'sane_l3210'
         run: |
           scripts/fetch-epson-scan2.sh apps/sane_l3210
           sha256sum apps/sane_l3210/packages/*.deb
-
-      - name: Prepare patched CUPS app
-        if: matrix.app == 'cupsik'
-        run: |
-          mkdir -p "$RUNNER_TEMP/apps"
-          mkdir -p "$RUNNER_TEMP/apps/cupsik"
-          git -C third_party/cups-airprint archive HEAD | tar -x -C "$RUNNER_TEMP/apps/cupsik"
-          patch --batch --forward -p1 -d "$RUNNER_TEMP/apps/cupsik" \
-            < patches/cupsik/0001-homeassistant-ingress-and-local-monitor.patch
-          cp -a patches/cupsik/overlay/. "$RUNNER_TEMP/apps/cupsik/"
 
       - name: Select build context
         run: |
@@ -56,7 +44,7 @@ jobs:
           if [ "${{ matrix.app }}" = sane_l3210 ]; then
             echo "BUILD_CONTEXT=apps/sane_l3210" >> "$GITHUB_ENV"
           else
-            echo "BUILD_CONTEXT=$RUNNER_TEMP/apps/cupsik" >> "$GITHUB_ENV"
+            echo "BUILD_CONTEXT=apps/cupsik" >> "$GITHUB_ENV"
           fi
 
       - uses: docker/setup-qemu-action@v3

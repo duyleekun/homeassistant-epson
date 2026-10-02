@@ -1,3 +1,0 @@
-[submodule "third_party/cups-airprint"]
-	path = third_party/cups-airprint
-	url = https://github.com/romlisrl/ha-cups-airprint.git

@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bashio
+set -Eeuo pipefail
+ulimit -n 524288
+until [ -S /run/dbus/system_bus_socket ]; do sleep 1; done
+bashio::log.info "Starting Avahi"
+exec avahi-daemon --no-chroot --daemonize=no
