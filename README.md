@@ -22,6 +22,9 @@ the GHCR images published by `.github/workflows/publish-apps.yml`. Add
 `https://github.com/duyleekun/homeassistant-epson` under **Settings > Apps >
 App repositories**. Supervisor will pull the image named by each app's
 `config.yaml`; it will not run the local staging script on its own.
+Because this source repository is private, the GHCR packages must either be
+made public or supplied through a registry-authenticated deployment before
+Supervisor can pull them. The local staging path remains the recovery option.
 
 The scanner image build downloads the Epson Scan 2 6.7.92.0 bundle from a
 public download URL, verifies its SHA-256, and extracts the two `.deb` files.

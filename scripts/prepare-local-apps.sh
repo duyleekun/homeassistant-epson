@@ -34,6 +34,10 @@ git -C "$ROOT_DIR/third_party/cups-airprint" archive HEAD | tar -x -C "$STAGE_DI
 
 (cd "$STAGE_DIR/cupsik" && patch --batch --forward -p1 < "$CUPS_PATCH")
 cp -a "$ROOT_DIR/patches/cupsik/overlay/." "$STAGE_DIR/cupsik/"
+for app in sane_l3210 cupsik; do
+  sed '/^image:/d' "$STAGE_DIR/$app/config.yaml" > "$STAGE_DIR/$app/config.yaml.local"
+  mv "$STAGE_DIR/$app/config.yaml.local" "$STAGE_DIR/$app/config.yaml"
+done
 find "$STAGE_DIR" -type d -name __pycache__ -exec rm -rf {} +
 
 mkdir -p "$DEST_DIR"

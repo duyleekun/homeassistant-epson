@@ -50,6 +50,9 @@ jobs:
 
       - name: Select build context
         run: |
+          version="$(sed -n 's/^version: "\(.*\)"$/\1/p' apps/${{ matrix.app }}/config.yaml)"
+          test -n "$version"
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
           if [ "${{ matrix.app }}" = sane_l3210 ]; then
             echo "BUILD_CONTEXT=apps/sane_l3210" >> "$GITHUB_ENV"
           else
@@ -71,15 +74,8 @@ jobs:
           platforms: ${{ matrix.platforms }}
           push: true
           tags: |
+            ${{ matrix.image }}:${{ env.APP_VERSION }}
             ${{ matrix.image }}:${{ github.ref_name }}
             ${{ matrix.image }}:latest
           build-args: |
             BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.6.2
-      - name: Make GHCR image public for Supervisor pulls
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          package="${{ matrix.image }}"
-          package="${package##*/}"
-          gh api --method PATCH "/user/packages/container/$package" \
-            -f visibility=public || echo 'Package visibility could not be changed automatically; set it to Public once in GitHub Packages.'
