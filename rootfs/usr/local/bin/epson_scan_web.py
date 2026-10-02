@@ -21,6 +21,7 @@ PANEL_PROCESS = None
 PANEL_LISTENER_LOCK = threading.Lock()
 PANEL_LISTENER = None
 PANEL_STATUS = "Physical panel-button scanning is unavailable on this Linux host. Use Scan above."
+INGRESS_PROXY = "172.30.32.2"
 
 
 def ensure_dirs():
@@ -508,4 +509,9 @@ def arm_panel_scan(timeout):
 if __name__ == "__main__":
     ensure_default_settings()
     start_panel_listener()
-    ThreadingHTTPServer(("0.0.0.0", 8099), Handler).serve_forever()
+
+    class IngressOnlyServer(ThreadingHTTPServer):
+        def verify_request(self, request, client_address):
+            return client_address[0] == INGRESS_PROXY
+
+    IngressOnlyServer(("0.0.0.0", 8099), Handler).serve_forever()

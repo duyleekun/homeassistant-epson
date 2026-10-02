@@ -4,7 +4,7 @@ This repository contains the local Home Assistant app for sharing an Epson L3210
 
 ## Features
 
-- Native Epson Scan 2 scanning through the web interface on port `8099`.
+- Native Epson Scan 2 scanning through the Home Assistant ingress web panel.
 - A Home Assistant ingress sidebar panel named **Epson Scanner**.
 - SANE network sharing on port `6566`.
 - USB-backed CUPS queue monitoring.
@@ -21,9 +21,8 @@ The Epson physical panel-button scan event is not exposed reliably by the Linux 
 
 When installed from the repository through the Home Assistant app store, enable
 the app, open its details page, and turn on **Show in sidebar**. The resulting
-**Epson Scanner** panel uses Supervisor ingress, so it does not require
-exposing the scanner web port to the LAN or entering a separate app login.
-Direct access on port `8099` remains available for troubleshooting.
+**Epson Scanner** panel uses Supervisor ingress. The web scanner is restricted
+to the Supervisor ingress proxy and is not published as a custom LAN port.
 
 This is intentionally an app-level scanner UI rather than a Home Assistant
 core `scanner` entity: Home Assistant does not provide a general document-scan
@@ -57,7 +56,8 @@ ssh root@homeassistant.local 'ha apps start local_sane_l3210'
 
 The older `/local_apps/sane_l3210` path may exist on older installations, but
 `/addons/sane_l3210` is the source path Supervisor catalogs for local app
-development.
+development. The web scanner port is internal to the app and must not be
+added to `ports`; only SANE port `6566` is exposed for network scanner clients.
 
 The app maps `/share`; scan output and queue-monitor state are retained there across rebuilds. The CUPS app configuration is separate and must not be deleted during scanner deployment.
 
