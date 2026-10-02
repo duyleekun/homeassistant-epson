@@ -36,6 +36,10 @@ jobs:
           scripts/fetch-epson-scan2.sh apps/sane_l3210
           sha256sum apps/sane_l3210/packages/*.deb
 
+      - name: Verify official source archives
+        if: matrix.app == 'cupsik'
+        run: scripts/validate-official-sources.sh
+
       - name: Select build context
         run: |
           version="$(sed -n 's/^version: "\(.*\)"$/\1/p' apps/${{ matrix.app }}/config.yaml)"
