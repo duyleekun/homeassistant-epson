@@ -1,0 +1,18 @@
+# Epson packages and native libraries are staged locally and are not redistributed.
+packages/*.deb
+rootfs/opt/es2button/lib/*.so
+
+# Generated/runtime files.
+rootfs/usr/local/bin/__pycache__/
+*.pyc
+share/
+output/
+*.SF2
+*.jpg
+rootfs/usr/local/bin/*.png
+*.tif
+*.tiff
+
+# Local build and editor files.
+.DS_Store
+.venv/

@@ -1,0 +1,9 @@
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">Epson L3210 Scanner @ %h</name>
+  <service>
+    <type>_sane-port._tcp</type>
+    <port>6566</port>
+  </service>
+</service-group>

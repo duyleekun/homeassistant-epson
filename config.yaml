@@ -1,0 +1,19 @@
+name: SANE L3210 Scanner
+version: "0.6.3"
+slug: sane_l3210
+description: Network scanner sharing for the Epson L3210 over SANE
+arch:
+  - amd64
+usb: true
+init: false
+startup: services
+boot: auto
+host_network: true
+ports:
+  6566/tcp: 6566
+  8099/tcp: 8099
+ports_description:
+  6566/tcp: SANE network scanner service
+  8099/tcp: Epson native web scanner
+map:
+  - share:rw

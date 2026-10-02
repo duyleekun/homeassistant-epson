@@ -1,0 +1,89 @@
+#!/usr/bin/with-contenv bashio
+set -u
+
+CUPS_HOST="127.0.0.1:631"
+STATE_DIR="/share/epson-scan/queue-monitor"
+
+mkdir -p "$STATE_DIR"
+
+usb_queues() {
+  lpstat -h "$CUPS_HOST" -v 2>/dev/null \
+    | sed -n 's/^device for \([^:]*\): \(usb:\/\/.*\)$/\1|\2/p'
+}
+
+printer_present() {
+  local uri="$1"
+  local serial
+  serial="$(printf '%s\n' "$uri" | sed -n 's/.*[?&]serial=\([^&]*\).*/\1/p')"
+  [ -n "$serial" ] || return 1
+  for path in /sys/bus/usb/devices/*/serial; do
+    [ -r "$path" ] || continue
+    grep -Fxq "$serial" "$path" && return 0
+  done
+  return 1
+}
+
+set_queue_state() {
+  local queue="$1"
+  local desired="$2"
+  local result
+  if [ "$desired" = absent ]; then
+    result="$(cupsdisable -h "$CUPS_HOST" -r 'USB device absent' "$queue" 2>&1)"
+  else
+    result="$(cupsenable -h "$CUPS_HOST" "$queue" 2>&1)"
+  fi
+  if [ "$?" -eq 0 ]; then
+    printf '%s\n' "$desired" >"$STATE_DIR/$queue.state"
+    bashio::log.info "USB printer queue $queue set to $desired"
+    return 0
+  fi
+  bashio::log.warning "Could not set Epson queue to $desired: $result"
+  return 1
+}
+
+ensure_usb_workaround() {
+  local queue="$1" result
+  result="$(lpadmin -h "$CUPS_HOST" -p "$queue" -o usb-no-reattach-default=true 2>&1)"
+  if [ "$?" -ne 0 ]; then
+    bashio::log.warning "Could not apply Epson USB workaround to $queue: $result"
+  fi
+}
+
+release_held_jobs() {
+  local queue="$1" job
+  lpstat -h "$CUPS_HOST" -W not-completed -o 2>/dev/null \
+    | awk -v q="$queue" '$1 ~ ("^" q "-[0-9]+$") {print $1}' \
+    | while read -r job; do
+        [ -n "$job" ] || continue
+        lp -h "$CUPS_HOST" -i "$job" -H resume >/dev/null 2>&1 || true
+      done
+}
+
+while true; do
+  queues="$(usb_queues)"
+  if [ -z "$queues" ]; then
+    bashio::log.warning "No USB CUPS queues found; retrying"
+  else
+    while IFS='|' read -r queue uri; do
+      [ -n "$queue" ] || continue
+      ensure_usb_workaround "$queue"
+      state_file="$STATE_DIR/$queue.state"
+      previous="unknown"
+      [ -r "$state_file" ] && previous="$(cat "$state_file" 2>/dev/null || true)"
+      if printer_present "$uri"; then
+        current=present
+      else
+        current=absent
+      fi
+      if [ "$current" != "$previous" ]; then
+        set_queue_state "$queue" "$current" || true
+      fi
+      if [ "$current" = present ]; then
+        release_held_jobs "$queue"
+      fi
+    done <<EOF
+$queues
+EOF
+  fi
+  sleep 5
+done

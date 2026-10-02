@@ -1,0 +1,91 @@
+#!/usr/bin/with-contenv bashio
+set -euo pipefail
+
+bashio::log.info "Configuring SANE network access"
+touch /etc/services
+grep -q '^sane-port[[:space:]]' /etc/services || echo 'sane-port 6566/tcp saned' >>/etc/services
+
+cat >/etc/sane.d/saned.conf <<'EOF'
+127.0.0.1
+192.168.0.0/16
+10.0.0.0/8
+172.16.0.0/12
+EOF
+
+cat >/etc/sane.d/dll.conf <<'EOF'
+epson2
+EOF
+
+cat >/etc/sane.d/epson2.conf <<'EOF'
+usb 0x04b8 0x1188
+EOF
+
+bashio::log.info "Epson Scan 2 native driver check"
+if command -v epsonscan2 >/dev/null 2>&1; then
+  export QT_QPA_PLATFORM=offscreen
+  timeout 20s epsonscan2 --help 2>&1 | sed -n '1,80p' || true
+  bashio::log.info "Epson Scan 2 device list"
+  timeout 45s epsonscan2 --list 2>&1 | sed -n '1,120p' || true
+  bashio::log.info "Creating default Epson Scan 2 settings in /share/epson-scan"
+  mkdir -p /share/epson-scan
+  (
+    cd /share/epson-scan
+    timeout 45s epsonscan2 --create 2>&1 | sed -n '1,120p' || true
+    find . -maxdepth 1 -type f -print -exec sed -n '1,80p' {} \; 2>/dev/null | sed -n '1,180p'
+  ) || true
+  bashio::log.info "Epson Scan 2 device status"
+  timeout 45s epsonscan2 --get-status 2>&1 | sed -n '1,160p' || true
+
+  if [ -f /share/epson-scan/RUN_TEST_SCAN ]; then
+    bashio::log.info "Running one-shot Epson Scan 2 test scan"
+    python3 - <<'PY'
+import json
+from pathlib import Path
+
+base = Path("/share/epson-scan")
+src = base / "DefaultSettings.SF2"
+dst = base / "TestSettings.SF2"
+out = base / "output"
+out.mkdir(parents=True, exist_ok=True)
+
+text = src.read_text(encoding="utf-8-sig")
+data = json.loads(text)
+settings = data["Preset"][0]["0"][0]
+
+def set_int(key, value):
+    settings[key] = {"int": value}
+
+def set_string(key, value):
+    settings[key] = {"string": value}
+
+set_string("UserDefinePath", str(out))
+set_string("FileNamePrefix", "l3210-test")
+set_int("FileNameCounter", 0)
+set_int("FileNameOverWrite", 1)
+set_int("Resolution", 100)
+set_int("ScanAreaWidth", 600)
+set_int("ScanAreaHeight", 600)
+set_int("UserScanAreaWidth", 600)
+set_int("UserScanAreaHeight", 600)
+set_int("ImageFormat", 1)
+
+dst.write_text("\ufeff" + json.dumps(data, indent=4), encoding="utf-8")
+PY
+    rm -f /share/epson-scan/output/l3210-test*
+    timeout 180s epsonscan2 --scan "L3210 Series:583848523332363114" /share/epson-scan/TestSettings.SF2 2>&1 | sed -n '1,220p' || true
+    rm -f /share/epson-scan/RUN_TEST_SCAN
+    bashio::log.info "Epson Scan 2 test scan output"
+    find /share/epson-scan/output -maxdepth 1 -type f -ls 2>/dev/null || true
+  fi
+else
+  bashio::log.warning "epsonscan2 command is not installed"
+fi
+
+bashio::log.info "Starting saned on port 6566"
+if [ -x /etc/services.d/queue-monitor/run ]; then
+  bashio::log.info "Starting CUPS USB queue monitor"
+else
+  bashio::log.warning "CUPS USB queue monitor is missing"
+fi
+/etc/services.d/queue-monitor/run &
+exec saned --listen --bind=0.0.0.0 --port=6566 --debug=2 --stderr
