@@ -6,7 +6,6 @@ index 2ea3910..c90ca13 100644
  RUN apt update \
      && apt install -y --no-install-recommends \
          sudo \
-+        nginx \
          locales \
          cups \
          cups-filters \
@@ -26,7 +25,7 @@ index 7b1f69c..a370c2f 100644
  homeassistant_api: true
  host_network: true
 +ingress: true
-+ingress_port: 8100
++ingress_port: 631
 +panel_icon: mdi:printer-wireless
 +panel_title: Epson Printer
  ports:
