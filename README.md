@@ -25,6 +25,11 @@ git submodule update --init --recursive
 ha supervisor reload
 ```
 
+The script stages `sane_l3210` and `cupsik` as separate Home Assistant apps.
+This installation consumes local apps from `/local_apps`; use that destination
+when deploying here. `/addons` remains supported for installations that use
+the standard add-on source path.
+
 The script requires the tested Epson Scan 2 `.deb` packages and private native
 libraries to be staged under `apps/sane_l3210`. They are intentionally ignored
 and never committed. See `apps/sane_l3210/packages/README.md` and
