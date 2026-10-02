@@ -19,7 +19,7 @@ grep -q 'github.com/duyleekun/homeassistant-epson$' "$ROOT_DIR/repository.yaml"
 test ! -e "$ROOT_DIR/.gitmodules"
 
 grep -q '^homeassistant_api: true$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
-grep -q '^version: "0.8.3"$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
+grep -q '^version: "0.8.4"$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '^image: ghcr.io/duyleekun/homeassistant-epson-sane_l3210$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '6566/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 ! grep -Eq '^(ingress|ingress_port|panel_icon|panel_title):' "$ROOT_DIR/apps/sane_l3210/config.yaml"

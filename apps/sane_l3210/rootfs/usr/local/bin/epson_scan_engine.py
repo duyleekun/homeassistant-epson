@@ -10,12 +10,19 @@ import tempfile
 import time
 from urllib.request import Request, urlopen
 
+try:
+    import websocket
+except ImportError:  # pragma: no cover - image build provides this package
+    websocket = None
+
 BASE = Path("/share/epson-scan")
 OUTPUT = BASE / "output"
 DEFAULT_SETTINGS = BASE / "DefaultSettings.SF2"
 STATUS_PATH = BASE / "status.json"
 DEVICE_ID = "L3210 Series:583848523332363114"
+EVENT_ACTIVITY = "epson_l3210_activity"
 SUPERVISOR_EVENT_URL = "http://supervisor/core/api/events/epson_l3210_activity"
+SUPERVISOR_WS_URL = "ws://supervisor/core/websocket"
 
 
 def ensure_dirs() -> None:
@@ -48,13 +55,40 @@ def update_status(**changes) -> dict:
     return current
 
 
-def post_activity(event_type: str, **data) -> None:
-    payload = {"type": event_type, **data}
-    update_status(last_activity=payload)
+def _fire_activity_websocket(payload: dict) -> None:
+    token = os.environ.get("SUPERVISOR_TOKEN")
+    if websocket is None or not token:
+        raise RuntimeError("Home Assistant WebSocket client is unavailable")
+    connection = websocket.create_connection(SUPERVISOR_WS_URL, timeout=10)
+    try:
+        greeting = json.loads(connection.recv())
+        if greeting.get("type") != "auth_required":
+            raise RuntimeError("unexpected Home Assistant WebSocket greeting")
+        connection.send(json.dumps({"type": "auth", "access_token": token}))
+        auth_result = json.loads(connection.recv())
+        if auth_result.get("type") != "auth_ok":
+            raise RuntimeError("Home Assistant WebSocket authentication failed")
+        connection.send(
+            json.dumps(
+                {
+                    "id": 1,
+                    "type": "fire_event",
+                    "event_type": EVENT_ACTIVITY,
+                    "event_data": payload,
+                }
+            )
+        )
+        result = json.loads(connection.recv())
+        if result.get("id") != 1 or not result.get("success"):
+            raise RuntimeError(f"Home Assistant rejected scanner activity: {result}")
+    finally:
+        connection.close()
+
+
+def _post_activity_rest(payload: dict) -> None:
     token = os.environ.get("SUPERVISOR_TOKEN")
     if not token:
-        print("SUPERVISOR_TOKEN is unavailable; activity was written locally", flush=True)
-        return
+        raise RuntimeError("SUPERVISOR_TOKEN is unavailable")
     request = Request(
         SUPERVISOR_EVENT_URL,
         data=json.dumps(payload).encode("utf-8"),
@@ -64,11 +98,22 @@ def post_activity(event_type: str, **data) -> None:
         },
         method="POST",
     )
+    with urlopen(request, timeout=10):
+        pass
+
+
+def post_activity(event_type: str, **data) -> None:
+    payload = {"type": event_type, **data}
+    update_status(last_activity=payload)
     try:
-        with urlopen(request, timeout=10):
-            pass
-    except Exception as exc:
-        print(f"Could not publish scanner activity: {exc}", flush=True)
+        _fire_activity_websocket(payload)
+        return
+    except Exception as websocket_error:
+        print(f"Could not publish scanner activity over WebSocket: {websocket_error}", flush=True)
+    try:
+        _post_activity_rest(payload)
+    except Exception as rest_error:
+        print(f"Could not publish scanner activity over REST: {rest_error}", flush=True)
 
 
 def ensure_default_settings() -> None:
