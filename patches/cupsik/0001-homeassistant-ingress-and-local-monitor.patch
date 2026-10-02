@@ -1,0 +1,70 @@
+diff --git a/Dockerfile b/Dockerfile
+index 2ea3910..c90ca13 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -9,6 +9,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ RUN apt update \
+     && apt install -y --no-install-recommends \
+         sudo \
++        nginx \
+         locales \
+         cups \
+         cups-filters \
+diff --git a/config.yaml b/config.yaml
+index 7b1f69c..a370c2f 100644
+--- a/config.yaml
++++ b/config.yaml
+@@ -1,5 +1,5 @@
+ name: CUPS
+-version: "1.7"
++version: "1.7.1"
+ slug: cupsik
+ description: A CUPS print server with working AirPrint
+ arch:
+@@ -9,6 +9,10 @@ usb: true
+ init: false
+ homeassistant_api: true
+ host_network: true
++ingress: true
++ingress_port: 8098
++panel_icon: mdi:printer-wireless
++panel_title: Epson Printer
+ ports:
+   631/tcp: 631
+   631/udp: 631
+diff --git a/rootfs/etc/cups/cupsd.conf b/rootfs/etc/cups/cupsd.conf
+index be99648..1b9884e 100644
+--- a/rootfs/etc/cups/cupsd.conf
++++ b/rootfs/etc/cups/cupsd.conf
+@@ -74,6 +74,8 @@ IdleExitTimeout 60
+   <Limit Send-Document Send-URI Hold-Job Release-Job Restart-Job Purge-Jobs Set-Job-Attributes Create-Job-Subscription Renew-Subscription Cancel-Subscription Get-Notifications Reprocess-Job Cancel-Current-Job Suspend-Current-Job Resume-Job Cancel-My-Jobs Close-Job CUPS-Move-Job CUPS-Get-Document>
+     Require user @OWNER @SYSTEM
+     Order deny,allow
++    Allow localhost
++    Satisfy any
+   </Limit>
+ 
+   # All administration operations require an administrator to authenticate...
+@@ -81,6 +83,8 @@ IdleExitTimeout 60
+     AuthType Default
+     Require user @SYSTEM
+     Order deny,allow
++    Allow localhost
++    Satisfy any
+   </Limit>
+ 
+   # All printer operations require a printer operator to authenticate...
+@@ -88,6 +92,8 @@ IdleExitTimeout 60
+     AuthType Default
+     Require user @SYSTEM
+     Order deny,allow
++    Allow localhost
++    Satisfy any
+   </Limit>
+ 
+   # Only the owner or an administrator can cancel or authenticate a job...
+@@ -192,4 +198,3 @@ IdleExitTimeout 60
+     Order deny,allow
+   </Limit>
+ </Policy>
+-

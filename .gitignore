@@ -1,15 +1,15 @@
 # Epson packages and native libraries are staged locally and are not redistributed.
-packages/*.deb
-rootfs/opt/es2button/lib/*.so
+apps/sane_l3210/packages/*.deb
+apps/sane_l3210/rootfs/opt/es2button/lib/*.so
 
 # Generated/runtime files.
-rootfs/usr/local/bin/__pycache__/
+apps/sane_l3210/rootfs/usr/local/bin/__pycache__/
 *.pyc
 share/
 output/
 *.SF2
 *.jpg
-rootfs/usr/local/bin/*.png
+apps/sane_l3210/rootfs/usr/local/bin/*.png
 *.tif
 *.tiff
 

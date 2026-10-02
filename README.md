@@ -1,72 +1,53 @@
-# Home Assistant Epson Scanner App
+# Home Assistant Epson Apps
 
-This repository contains the local Home Assistant app for sharing an Epson L3210 scanner over SANE and providing native Epson Scan 2 web scanning.
+Private Home Assistant app repository for the Epson L3210 scanner and the
+separate CUPS/AirPrint service used by the printer.
 
-## Features
+## Apps
 
-- Native Epson Scan 2 scanning through the Home Assistant ingress web panel.
-- A Home Assistant ingress sidebar panel named **Epson Scanner**.
-- SANE network sharing on port `6566`.
-- USB-backed CUPS queue monitoring.
-- Dynamic discovery of USB CUPS queues from `lpstat`.
-- Queue pause when the USB device disappears.
-- Queue resume and release of jobs held while the device was offline.
-- Epson's documented `usb-no-reattach-default` workaround applied to discovered USB queues.
+- `apps/sane_l3210`: native Epson Scan 2 web scanning through Home Assistant
+  ingress, SANE network sharing, and dynamic USB-backed CUPS queue monitoring.
+- `cupsik`: prepared from the pinned upstream CUPS/AirPrint submodule with a
+  parent-owned patch for a Home Assistant ingress admin panel and localhost
+  queue control.
 
-The separate CUPS app provides AirPrint/Bonjour advertisement and owns the printer queue. This app only monitors the USB device and controls the queue through localhost CUPS.
+The scanner and CUPS remain separate containers. CUPS continues to own IPP,
+AirPrint, Bonjour, and the printer queue; the scanner app only monitors and
+controls discovered USB-backed queues.
 
-The Epson physical panel-button scan event is not exposed reliably by the Linux driver on the L3210. Use the native web scanner for repeatable scans.
+## Prepare A Home Assistant Host
 
-## Home Assistant UI
-
-When installed from the repository through the Home Assistant app store, enable
-the app, open its details page, and turn on **Show in sidebar**. The resulting
-**Epson Scanner** panel uses Supervisor ingress. The web scanner is restricted
-to the Supervisor ingress proxy and is not published as a custom LAN port.
-
-This is intentionally an app-level scanner UI rather than a Home Assistant
-core `scanner` entity: Home Assistant does not provide a general document-scan
-entity platform for Epson Scan 2. The app provides the native scan workflow,
-while SANE clients continue to use port `6566`.
-
-## Local package staging
-
-Epson Scan 2 packages and the patched private native libraries are intentionally excluded from Git. Stage these files before building the app:
-
-```text
-packages/epsonscan2_6.7.92.0-1_amd64.deb
-packages/epsonscan2-non-free-plugin_1.0.0.6-1_amd64.deb
-rootfs/opt/es2button/lib/libcommonutility.so
-rootfs/opt/es2button/lib/libes2command.so
-```
-
-Do not publish or redistribute Epson binaries without checking their license terms. The current local staging files are the tested source of truth for this installation.
-
-## Home Assistant deployment
-
-Home Assistant's documented remote-development path is `/addons`. Copy this
-repository into the local app source path and rebuild it through Supervisor:
+The upstream CUPS source is a Git submodule. On the Home Assistant host:
 
 ```bash
-scp -r . root@homeassistant.local:/addons/sane_l3210
-ssh root@homeassistant.local 'ha supervisor reload'
-ssh root@homeassistant.local 'ha apps rebuild local_sane_l3210 --force'
-ssh root@homeassistant.local 'ha apps start local_sane_l3210'
+git submodule update --init --recursive
+./scripts/prepare-local-apps.sh /addons
+ha supervisor reload
 ```
 
-The older `/local_apps/sane_l3210` path may exist on older installations, but
-`/addons/sane_l3210` is the source path Supervisor catalogs for local app
-development. The web scanner port is internal to the app and must not be
-added to `ports`; only SANE port `6566` is exposed for network scanner clients.
+The script requires the tested Epson Scan 2 `.deb` packages and private native
+libraries to be staged under `apps/sane_l3210`. They are intentionally ignored
+and never committed. See `apps/sane_l3210/packages/README.md` and
+`apps/sane_l3210/packages/SHA256SUMS`.
 
-The app maps `/share`; scan output and queue-monitor state are retained there across rebuilds. The CUPS app configuration is separate and must not be deleted during scanner deployment.
+## Migration Safety
+
+Before replacing the existing CUPS app, back up `/share/epson-scan` and
+`/app_configs/2c6aefcc_cupsik`. Preserve the existing `printers.conf`,
+`cupsd.conf`, queue options, and Avahi behavior until both small CUPS and large
+Mac AirPrint jobs have been verified.
+
+The CUPS ingress panel is for administration only. TCP/UDP `631` remains
+exposed for IPP, AirPrint, and Bonjour. CUPS authentication remains enabled;
+Home Assistant ingress authentication does not replace CUPS authorization.
 
 ## Validation
 
-Run the static checks before deployment:
-
 ```bash
-tests/validate-queue-monitor.sh
+apps/sane_l3210/tests/validate-queue-monitor.sh
+git submodule update --init --recursive
+git diff --submodule=diff --exit-code
 ```
 
-Then verify a real scan, a small CUPS print, USB removal/resume, and a large Mac AirPrint print through the shared queue.
+Validate a real nonblank scan, CUPS test page, large Mac AirPrint job, USB
+removal/resume, held-job release, and both ingress panels after deployment.
