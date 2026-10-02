@@ -2,12 +2,13 @@ diff --git a/config.yaml b/config.yaml
 index 7b1f69c..a370c2f 100644
 --- a/config.yaml
 +++ b/config.yaml
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,6 @@
  name: CUPS
 -version: "1.7"
 +version: "1.7.4"
  slug: cupsik
  description: A CUPS print server with working AirPrint
++image: ghcr.io/duyleekun/homeassistant-epson-cupsik
  arch:
 @@ -9,6 +9,11 @@ usb: true
  init: false

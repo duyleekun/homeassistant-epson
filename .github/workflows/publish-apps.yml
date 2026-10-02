@@ -75,3 +75,11 @@ jobs:
             ${{ matrix.image }}:latest
           build-args: |
             BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.6.2
+      - name: Make GHCR image public for Supervisor pulls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          package="${{ matrix.image }}"
+          package="${package##*/}"
+          gh api --method PATCH "/user/packages/container/$package" \
+            -f visibility=public || echo 'Package visibility could not be changed automatically; set it to Public once in GitHub Packages.'
