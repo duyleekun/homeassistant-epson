@@ -88,4 +88,5 @@ else
   bashio::log.warning "CUPS USB queue monitor is missing"
 fi
 /etc/services.d/queue-monitor/run &
+/etc/services.d/scanner-monitor/run &
 exec saned --listen --bind=0.0.0.0 --port=6566 --debug=2 --stderr

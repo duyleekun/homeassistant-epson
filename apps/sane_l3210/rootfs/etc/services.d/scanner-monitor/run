@@ -1,0 +1,33 @@
+#!/usr/bin/with-contenv bashio
+set -u
+
+last_state=unknown
+
+scanner_present() {
+  scanimage -L 2>/dev/null | grep -q "epsonscan2:"
+}
+
+refresh_native_backend() {
+  local output
+  output="$(timeout 45s epsonscan2 --get-status 2>&1 || true)"
+  bashio::log.info "Epson Scan 2 USB state changed; refreshed native backend"
+  printf '%s\n' "$output" | sed -n '1,40p'
+}
+
+while true; do
+  if scanner_present; then
+    state=present
+  else
+    state=absent
+  fi
+
+  if [ "$state" != "$last_state" ]; then
+    if [ "$state" = present ]; then
+      refresh_native_backend
+    else
+      bashio::log.info "Epson scanner USB device is absent"
+    fi
+    last_state="$state"
+  fi
+  sleep 5
+done

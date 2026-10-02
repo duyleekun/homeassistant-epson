@@ -138,6 +138,7 @@ def native_scan(resolution, prefix, overrides=None, manage_listener=True):
     if manage_listener:
         stop_panel_listener()
     try:
+        refresh_native_device(env)
         result = subprocess.run(
             ["epsonscan2", "--scan", DEVICE_ID, str(settings)],
             env=env,
@@ -153,6 +154,21 @@ def native_scan(resolution, prefix, overrides=None, manage_listener=True):
     if result.returncode == 0:
         return "Scan finished."
     return f"Scan command exited {result.returncode}: {result.stdout[-500:]}"
+
+
+def refresh_native_device(env=None):
+    """Refresh Epson Scan 2's USB enumeration after a hotplug transition."""
+    refresh_env = env or os.environ.copy()
+    refresh_env["QT_QPA_PLATFORM"] = "offscreen"
+    subprocess.run(
+        ["epsonscan2", "--get-status"],
+        env=refresh_env,
+        timeout=45,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
 
 
 def current_epson2_device():
