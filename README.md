@@ -62,7 +62,9 @@ it no longer needs an unauthenticated web scanner endpoint.
 ## Migration Safety
 
 Before replacing the existing CUPS app, back up `/share/epson-scan`,
-`/app_configs/2c6aefcc_cupsik`, and `/app_configs/local_cupsik`. Preserve the existing `printers.conf`,
+`/app_configs/2c6aefcc_cupsik`, and `/app_configs/local_cupsik`. The migration
+staging path `/share/epson-scan/cups-migration/local_cupsik` is copied into the
+new `app_config` volume on first start when no queue exists. Preserve the existing `printers.conf`,
 `cupsd.conf`, queue options, and Avahi behavior until both small CUPS and large
 Mac AirPrint jobs have been verified.
 

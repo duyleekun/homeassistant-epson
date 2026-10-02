@@ -1,5 +1,5 @@
 name: Epson Printer
-version: "2.0.0"
+version: "2.0.1"
 slug: cupsik
 description: CUPS print server with AirPrint and Epson USB queue support
 image: ghcr.io/duyleekun/homeassistant-epson-cupsik
@@ -21,4 +21,5 @@ ports_description:
   631/tcp: IPP, AirPrint, and CUPS administration
   631/udp: Bonjour and AirPrint discovery
 map:
-  - addon_config:rw
+  - app_config:rw
+  - share:rw
