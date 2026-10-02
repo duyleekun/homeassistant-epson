@@ -21,7 +21,7 @@ grep -q '^homeassistant_api: true$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '^version: "0.8.1"$' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '6566/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 ! grep -Eq '^(ingress|ingress_port|panel_icon|panel_title):' "$ROOT_DIR/apps/sane_l3210/config.yaml"
-grep -q '^version: "2.0.1"$' "$ROOT_DIR/apps/cupsik/config.yaml"
+grep -q '^version: "2.0.2"$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress: true$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q '^ingress_port: 631$' "$ROOT_DIR/apps/cupsik/config.yaml"
 

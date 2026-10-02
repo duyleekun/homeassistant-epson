@@ -8,6 +8,12 @@ if [ ! -f /config/cups/printers.conf ] && [ -f /share/epson-scan/cups-migration/
   cp -a /share/epson-scan/cups-migration/local_cupsik/cups/. /config/cups/
 fi
 
+if [ -f /config/cups/printers.conf ]; then
+  bashio::log.info "Using the persistent Epson CUPS queue configuration"
+else
+  bashio::log.warning "No persistent printers.conf is available yet"
+fi
+
 if [ ! -f /config/cups/cupsd.conf ]; then
   cp -a /etc/cups/. /config/cups/
 fi
