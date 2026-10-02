@@ -1,0 +1,28 @@
+#!/usr/bin/with-contenv bashio
+set -Eeuo pipefail
+
+QUEUE=EPSON_L3210_Series
+CUPS_HOST=127.0.0.1:631
+PPD=/config/cups/ppd/${QUEUE}.ppd
+URI=""
+
+if lpstat -h "$CUPS_HOST" -p "$QUEUE" >/dev/null 2>&1; then
+  bashio::log.info "Preserved Epson CUPS queue is active"
+  exit 0
+fi
+
+if [ -r /config/cups/printers.conf ]; then
+  URI="$(sed -n "/^<DefaultPrinter ${QUEUE}>/,/^<\// s/^DeviceURI //p" /config/cups/printers.conf | head -n 1)"
+fi
+
+if [ -z "$URI" ] || [ ! -r "$PPD" ]; then
+  bashio::log.warning "Cannot restore Epson queue: missing DeviceURI or PPD"
+  exit 0
+fi
+
+bashio::log.info "Restoring the preserved Epson queue through CUPS"
+lpadmin -h "$CUPS_HOST" -p "$QUEUE" -E -v "$URI" -P "$PPD" \
+  -o usb-no-reattach-default=true \
+  -o outputorder=reverse -o page-delivery=reverse-order
+cupsenable -h "$CUPS_HOST" "$QUEUE"
+cupsaccept -h "$CUPS_HOST" "$QUEUE"
