@@ -23,11 +23,11 @@ the GHCR images published by `.github/workflows/publish-apps.yml`. Add
 App repositories**. Supervisor will pull the image named by each app's
 `config.yaml`; it will not run the local staging script on its own.
 
-The scanner image build requires a private GitHub release named
-`epson-scan2-6.7.92` containing the two Epson `.deb` files and the two native
-library files. The release is used only by GitHub Actions and is never copied
-into Git history. Run the workflow manually after uploading that release, or
-push a `v*` tag after the release exists.
+The scanner image build downloads the Epson Scan 2 6.7.92.0 bundle from a
+public download URL, verifies its SHA-256, and extracts the two `.deb` files.
+The proprietary packages remain outside Git history. Override
+`EPSON_BUNDLE_URL` only when using a trusted mirror with the same verified
+bundle.
 
 The upstream CUPS source is a Git submodule. On the Home Assistant host:
 
@@ -42,10 +42,9 @@ This installation consumes local apps from `/local_apps`; use that destination
 when deploying here. `/addons` remains supported for installations that use
 the standard add-on source path.
 
-The script requires the tested Epson Scan 2 `.deb` packages and private native
-libraries to be staged under `apps/sane_l3210`. They are intentionally ignored
-and never committed. See `apps/sane_l3210/packages/README.md` and
-`apps/sane_l3210/packages/SHA256SUMS`.
+The script fetches the tested Epson Scan 2 `.deb` packages when they are not
+already staged. They are intentionally ignored and never committed. See
+`scripts/fetch-epson-scan2.sh` and `apps/sane_l3210/packages/SHA256SUMS`.
 
 ## Migration Safety
 

@@ -20,7 +20,7 @@ grep -q '6566/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 ! grep -q '8099/tcp' "$ROOT_DIR/apps/sane_l3210/config.yaml"
 grep -q '^image: ghcr.io/duyleekun/homeassistant-epson-cupsik$' "$ROOT_DIR/apps/cupsik/config.yaml"
 grep -q 'docker/build-push-action@v6' "$ROOT_DIR/.github/workflows/publish-apps.yml"
-grep -q "gh release download" "$ROOT_DIR/.github/workflows/publish-apps.yml"
+grep -q 'fetch-epson-scan2.sh' "$ROOT_DIR/.github/workflows/publish-apps.yml"
 
 tracked_forbidden="$(git -C "$ROOT_DIR" ls-files | grep -E '(^|/)(.*\.deb|.*\.so|__pycache__|.*\.pyc|.*\.(jpg|jpeg|tif|tiff|SF2))$' || true)"
 [ -z "$tracked_forbidden" ] || {

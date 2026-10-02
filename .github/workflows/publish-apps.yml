@@ -5,11 +5,7 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
-    inputs:
-      epson_release:
-        description: Private release containing the Epson Scan 2 packages and native libraries
-        required: true
-        default: epson-scan2-6.7.92
+    inputs: {}
 
 permissions:
   contents: read
@@ -36,22 +32,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Stage private Epson assets
+      - name: Download and verify Epson assets
         if: matrix.app == 'sane_l3210'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EPSON_RELEASE: ${{ inputs.epson_release || 'epson-scan2-6.7.92' }}
         run: |
-          mkdir -p apps/sane_l3210/packages apps/sane_l3210/rootfs/opt/es2button/lib
-          gh release download "$EPSON_RELEASE" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern 'epsonscan2_6.7.92.0-1_amd64.deb' \
-            --pattern 'epsonscan2-non-free-plugin_1.0.0.6-1_amd64.deb' \
-            --pattern 'libcommonutility.so' \
-            --pattern 'libes2command.so' \
-            --dir "$RUNNER_TEMP/epson-assets"
-          cp "$RUNNER_TEMP/epson-assets/"*.deb apps/sane_l3210/packages/
-          cp "$RUNNER_TEMP/epson-assets/"*.so apps/sane_l3210/rootfs/opt/es2button/lib/
+          scripts/fetch-epson-scan2.sh apps/sane_l3210
           sha256sum apps/sane_l3210/packages/*.deb
 
       - name: Prepare patched CUPS app

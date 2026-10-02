@@ -12,14 +12,15 @@ die() {
 
 command -v patch >/dev/null 2>&1 || die "patch is required"
 
+"$ROOT_DIR/scripts/fetch-epson-scan2.sh" "$ROOT_DIR/apps/sane_l3210"
+
 git -C "$ROOT_DIR" submodule update --init --recursive
 
 for required in \
   "$ROOT_DIR/apps/sane_l3210/packages/epsonscan2_6.7.92.0-1_amd64.deb" \
   "$ROOT_DIR/apps/sane_l3210/packages/epsonscan2-non-free-plugin_1.0.0.6-1_amd64.deb" \
-  "$ROOT_DIR/apps/sane_l3210/rootfs/opt/es2button/lib/libcommonutility.so" \
-  "$ROOT_DIR/apps/sane_l3210/rootfs/opt/es2button/lib/libes2command.so"; do
-  [ -f "$required" ] || die "missing staged Epson file: $required"
+  "$ROOT_DIR/apps/sane_l3210/rootfs/usr/local/bin/es2button"; do
+  [ -f "$required" ] || die "missing scanner file: $required"
 done
 
 [ -f "$CUPS_PATCH" ] || die "missing CUPS patch: $CUPS_PATCH"
