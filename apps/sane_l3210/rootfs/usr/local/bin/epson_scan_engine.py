@@ -227,21 +227,28 @@ def scan_native(resolution: int, color_mode: str, prefix: str, source: str, requ
     return metadata
 
 
-def scan_panel() -> dict:
+def scan_sane(
+    resolution: int,
+    color_mode: str,
+    prefix: str,
+    source: str,
+    request_id: str | None = None,
+) -> dict:
+    """Scan through the working Epson SANE backend after releasing USB ownership."""
     ensure_dirs()
     device = current_epson2_device() or "epson2:libusb:009:014"
-    prefix = time.strftime("panel-%Y%m%d-%H%M%S") + f"-{time.time_ns() % 1000000:06d}"
-    output = OUTPUT / f"{prefix}.jpg"
-    update_status(state="scanning", scan_request_id=None, error=None)
+    output = OUTPUT / f"{prefix}-{time.time_ns() % 1000000:06d}.jpg"
+    mode = "Gray" if color_mode == "grayscale" else "Color"
+    update_status(state="scanning", scan_request_id=request_id, error=None)
     command = [
         "scanimage",
         "-d",
         device,
         "--format=jpeg",
         "--mode",
-        "Color",
+        mode,
         "--resolution",
-        "200",
+        str(resolution),
         "-x",
         "215.9",
         "-y",
@@ -260,14 +267,19 @@ def scan_panel() -> dict:
     except Exception:
         output.unlink(missing_ok=True)
         raise
-    if result.returncode != 0 or output.stat().st_size == 0:
+    if result.returncode != 0 or not output.exists() or output.stat().st_size == 0:
         detail = result.stderr[-1000:].strip()
         output.unlink(missing_ok=True)
         raise RuntimeError(f"SANE panel scan exited {result.returncode}: {detail}")
-    metadata = _scan_metadata(output, "panel_button", 200, "color")
+    metadata = _scan_metadata(output, source, resolution, color_mode)
     update_status(state="idle", last_scan=metadata, scan_request_id=None, error=None)
-    post_activity("scan_completed", request_id=None, **metadata)
+    post_activity("scan_completed", request_id=request_id, **metadata)
     return metadata
+
+
+def scan_panel() -> dict:
+    prefix = time.strftime("panel-%Y%m%d-%H%M%S")
+    return scan_sane(200, "color", prefix, "panel_button")
 
 
 def fail_scan(source: str, error: str, request_id: str | None = None) -> None:

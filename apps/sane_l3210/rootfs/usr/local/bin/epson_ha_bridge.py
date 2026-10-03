@@ -7,7 +7,7 @@ import signal
 import threading
 import time
 
-from epson_scan_engine import fail_scan, scan_native, update_status
+from epson_scan_engine import fail_scan, scan_native, scan_sane, update_status
 
 try:
     import websocket
@@ -60,13 +60,23 @@ def perform_scan(request: dict) -> None:
         return
     try:
         stop_panel_listener()
-        scan_native(
-            int(request.get("resolution", 200)),
-            str(request.get("color_mode", "color")),
-            str(request.get("filename_prefix", "scan")),
-            "ha_action",
-            request_id,
-        )
+        resolution = int(request.get("resolution", 200))
+        color_mode = str(request.get("color_mode", "color"))
+        prefix = str(request.get("filename_prefix", "scan"))
+        try:
+            scan_native(resolution, color_mode, prefix, "ha_action", request_id)
+        except Exception as native_error:
+            print(
+                f"Epson Scan 2 action failed; trying SANE fallback: {native_error}",
+                flush=True,
+            )
+            scan_sane(
+                resolution,
+                color_mode,
+                prefix,
+                "ha_action_sane_fallback",
+                request_id,
+            )
     except Exception as exc:
         fail_scan("ha_action", str(exc), request_id)
     finally:

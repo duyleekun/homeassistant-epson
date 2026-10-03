@@ -53,6 +53,8 @@ class NativeIntegrationContractTest(unittest.TestCase):
         self.assertIn("epson_l3210_activity", engine_source)
         self.assertIn('"fire_event"', engine_source)
         self.assertIn("SUPERVISOR_WS_URL", engine_source)
+        self.assertIn("def scan_sane", engine_source)
+        self.assertIn("trying SANE fallback", bridge_source)
         self.assertIn("SERVICE_SCAN_SCHEMA", init_source)
         for resolution in ("100", "200", "300"):
             self.assertIn(resolution, const_source)

@@ -103,7 +103,7 @@ class EpsonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self._activity: dict[str, Any] | None = None
         self._activity_sequence = 0
-        self._listeners: list[Callable[[], None]] = []
+        self._activity_listeners: list[Callable[[], None]] = []
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -123,12 +123,12 @@ class EpsonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @callback
     def add_listener(self, listener: Callable[[], None]) -> Callable[[], None]:
-        self._listeners.append(listener)
+        self._activity_listeners.append(listener)
 
         @callback
         def remove() -> None:
-            if listener in self._listeners:
-                self._listeners.remove(listener)
+            if listener in self._activity_listeners:
+                self._activity_listeners.remove(listener)
 
         return remove
 
@@ -164,7 +164,7 @@ class EpsonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "activity_sequence": self._activity_sequence,
             }
         )
-        for listener in tuple(self._listeners):
+        for listener in tuple(self._activity_listeners):
             listener()
 
 
